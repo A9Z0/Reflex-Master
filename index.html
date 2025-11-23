@@ -390,6 +390,8 @@
             z-index: 10;
             min-width: 60px;
             min-height: 60px;
+            border-radius: 50%;
+            background: radial-gradient(circle, var(--accent), var(--danger));
         }
 
         /* Gestion des z-index pour éviter le chevauchement */
@@ -403,60 +405,6 @@
 
         .target.large {
             z-index: 10;
-        }
-
-        .target.circle {
-            border-radius: 50%;
-            background: radial-gradient(circle, var(--accent), var(--danger));
-        }
-
-        .target.square {
-            border-radius: 10px;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-        }
-
-        .target.heart {
-            position: relative;
-            background: linear-gradient(135deg, var(--accent), var(--danger));
-            transform: rotate(45deg);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .target.heart::before,
-        .target.heart::after {
-            content: '';
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background: inherit;
-            border-radius: 50%;
-        }
-
-        .target.heart::before {
-            top: -50%;
-            left: 0;
-        }
-
-        .target.heart::after {
-            top: 0;
-            left: -50%;
-        }
-
-        .target.heart span {
-            transform: rotate(-45deg);
-            color: white;
-            font-weight: bold;
-            z-index: 1;
-        }
-
-        .target.star {
-            background: linear-gradient(135deg, var(--warning), #ff9e00);
-            clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
         }
 
         /* Style spécial pour les cibles avec chiffres */
@@ -1097,7 +1045,7 @@
             </div>
         </div>
         
-        <!-- Sélecteurs de jeu - AJOUT DU MODE CHIFFRES -->
+        <!-- Sélecteurs de jeu - SUPPRESSION DU CHOIX DES FORMES -->
         <div class="game-selectors">
             <div class="selector-group">
                 <div class="selector-title">Mode de jeu</div>
@@ -1115,14 +1063,6 @@
                     <div class="option-btn active" data-duration="30">30s</div>
                     <div class="option-btn" data-duration="60">1min</div>
                     <div class="option-btn" data-duration="120">2min</div>
-                </div>
-            </div>
-            
-            <div class="selector-group">
-                <div class="selector-title">Formes</div>
-                <div class="selector-options">
-                    <div class="option-btn active" data-shapes="circle">Cercles</div>
-                    <div class="option-btn" data-shapes="mixed">Variées</div>
                 </div>
             </div>
             
@@ -1165,10 +1105,6 @@
                     <div class="stat-item">
                         <span class="stat-label">Difficulté :</span>
                         <span class="stat-value" id="finalDifficulty">-</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Formes :</span>
-                        <span class="stat-value" id="finalShapes">-</span>
                     </div>
                     <div class="stat-item">
                         <span class="stat-label">Précision :</span>
@@ -1219,13 +1155,13 @@
         <div class="instructions">
             <h3>Comment jouer ?</h3>
             <ul>
-                <li><strong>Mode Classique</strong> : Cliquez sur les formes qui apparaissent pour marquer des points</li>
-                <li><strong>Mode Chiffres</strong> : Cliquez sur les formes avec des chiffres pour marquer des points (plus le chiffre est élevé, plus vous gagnez de points)</li>
+                <li><strong>Mode Classique</strong> : Cliquez sur les cercles qui apparaissent pour marquer des points</li>
+                <li><strong>Mode Chiffres</strong> : Cliquez sur les cercles avec des chiffres pour marquer des points (plus le chiffre est élevé, plus vous gagnez de points)</li>
                 <li>Les cibles <strong>se déplacent</strong> à chaque clic réussi</li>
                 <li>Si vous <strong>ratez une cible</strong>, elle disparaît et une nouvelle apparaît</li>
                 <li>Vous avez un <strong>temps limité</strong> pour obtenir le meilleur score possible</li>
                 <li>Votre <strong>précision</strong> est calculée en fonction de vos clics réussis</li>
-                <li><strong>Personnalisez</strong> la durée, les formes et la difficulté pour plus de défis !</li>
+                <li><strong>Personnalisez</strong> la durée et la difficulté pour plus de défis !</li>
                 <li><strong>Améliorez votre score</strong> en battant vos records personnels !</li>
             </ul>
         </div>
@@ -1282,7 +1218,6 @@
                             <th>Score</th>
                             <th>Précision</th>
                             <th>Durée</th>
-                            <th>Formes</th>
                             <th>Difficulté</th>
                         </tr>
                     </thead>
@@ -1299,7 +1234,6 @@
                             <th>Score</th>
                             <th>Précision</th>
                             <th>Durée</th>
-                            <th>Formes</th>
                             <th>Difficulté</th>
                             <th>Date</th>
                         </tr>
@@ -1317,7 +1251,6 @@
                             <th>Score</th>
                             <th>Précision</th>
                             <th>Durée</th>
-                            <th>Formes</th>
                             <th>Difficulté</th>
                             <th>Date</th>
                         </tr>
@@ -1336,7 +1269,6 @@
                             <th>Mode</th>
                             <th>Précision</th>
                             <th>Durée</th>
-                            <th>Formes</th>
                             <th>Difficulté</th>
                             <th>Date</th>
                         </tr>
@@ -1353,7 +1285,7 @@
         </div>
     </div>
 
-    <!-- Modal Règles - MIS À JOUR AVEC LE MODE CHIFFRES -->
+    <!-- Modal Règles - MIS À JOUR -->
     <div class="modal" id="rulesModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -1371,22 +1303,22 @@
                     <h3><i class="fas fa-gamepad"></i> Mode Classique</h3>
                     <ul>
                         <li>Cliquez sur <strong>"Commencer"</strong> pour lancer une nouvelle partie</li>
-                        <li>Des formes apparaîtront à l'écran - <strong>cliquez dessus le plus vite possible</strong></li>
+                        <li>Des cercles apparaîtront à l'écran - <strong>cliquez dessus le plus vite possible</strong></li>
                         <li>Chaque clic réussi rapporte <strong>1 point</strong></li>
-                        <li>Les formes se déplacent après chaque clic réussi</li>
-                        <li>Si vous <strong>ratez une forme</strong>, elle disparaît et une nouvelle apparaît</li>
+                        <li>Les cercles se déplacent après chaque clic réussi</li>
+                        <li>Si vous <strong>ratez un cercle</strong>, il disparaît et un nouveau apparaît</li>
                     </ul>
                 </div>
                 
                 <div class="rules-section">
                     <h3><i class="fas fa-sort-numeric-up"></i> Mode Chiffres</h3>
                     <ul>
-                        <li>Entre <strong>2 et 5 formes</strong> apparaissent simultanément, chacune avec un <strong>chiffre unique</strong></li>
+                        <li>Entre <strong>2 et 3 cercles</strong> apparaissent simultanément, chacun avec un <strong>chiffre unique</strong></li>
                         <li>Les chiffres vont de <strong>1 à 10</strong> et sont tous différents dans une même distribution</li>
-                        <li>Chaque forme cliquée rapporte <strong>le nombre de points correspondant au chiffre</strong></li>
+                        <li>Chaque cercle cliqué rapporte <strong>le nombre de points correspondant au chiffre</strong></li>
                         <li>Exemple : cliquer sur un "5" rapporte 5 points, sur un "10" rapporte 10 points</li>
-                        <li>Après chaque clic (réussi ou raté), <strong>toutes les formes disparaissent</strong> et de nouvelles apparaissent avec de nouveaux chiffres</li>
-                        <li>Le but est de <strong>maximiser votre score</strong> en cliquant sur les formes avec les chiffres les plus élevés</li>
+                        <li>Après chaque clic (réussi ou raté), <strong>tous les cercles disparaissent</strong> et de nouveaux apparaissent avec de nouveaux chiffres</li>
+                        <li>Le but est de <strong>maximiser votre score</strong> en cliquant sur les cercles avec les chiffres les plus élevés</li>
                     </ul>
                 </div>
                 
@@ -1394,12 +1326,6 @@
                     <h3><i class="fas fa-sliders-h"></i> Personnalisation</h3>
                     <ul>
                         <li><strong>Durée</strong> : Choisissez entre 10s, 20s, 30s, 1min ou 2min</li>
-                        <li><strong>Formes</strong> : 
-                            <ul>
-                                <li><strong>Cercles</strong> : Formes rondes classiques</li>
-                                <li><strong>Variées</strong> : Mélange de cercles, carrés, cœurs et étoiles</li>
-                            </ul>
-                        </li>
                         <li><strong>Difficulté</strong> : 
                             <ul>
                                 <li><strong>Facile</strong> : Cibles grandes (90px) et lentes</li>
@@ -1407,6 +1333,7 @@
                                 <li><strong>Difficile</strong> : Cibles petites (50px) et rapides</li>
                             </ul>
                         </li>
+                        <li><strong>Formes</strong> : Toutes les cibles sont des cercles pour une expérience uniforme</li>
                     </ul>
                 </div>
                 
@@ -1438,7 +1365,7 @@
             COUNTDOWN_TIME: 3,
             MAX_HISTORY_ITEMS: 30,
             NUMBER_MODE_MIN_TARGETS: 2,
-            NUMBER_MODE_MAX_TARGETS: 5,
+            NUMBER_MODE_MAX_TARGETS: 3, // Réduit de 5 à 3
             NUMBER_MODE_MIN_VALUE: 1,
             NUMBER_MODE_MAX_VALUE: 10,
             MIN_MARGIN: 50,
@@ -1465,7 +1392,6 @@
             finalTime: document.getElementById('finalTime'),
             finalMode: document.getElementById('finalMode'),
             finalDifficulty: document.getElementById('finalDifficulty'),
-            finalShapes: document.getElementById('finalShapes'),
             finalDuration: document.getElementById('finalDuration'),
             recentHistoryList: document.getElementById('recentHistoryList'),
             playAgainBtn: document.getElementById('playAgainBtn'),
@@ -1490,7 +1416,6 @@
             soundEnabled: localStorage.getItem('soundEnabled') !== 'false',
             countdownActive: false,
             gameMode: 'classic',
-            shapesMode: 'circle',
             difficulty: 'easy',
             isLightMode: localStorage.getItem('lightMode') === 'true'
         };
@@ -1606,11 +1531,6 @@
                 elements.timer.textContent = gameState.timeLeft;
             });
             
-            // Formes
-            setupSelector('[data-shapes]', 'shapes', (value) => {
-                gameState.shapesMode = value;
-            });
-            
             // Difficulté
             setupSelector('[data-difficulty]', 'difficulty', (value) => {
                 gameState.difficulty = value;
@@ -1634,7 +1554,8 @@
         }
 
         function updateConfigKey() {
-            currentConfigKey = `${gameState.gameMode}_${gameState.gameDuration}_${gameState.shapesMode}_${gameState.difficulty}`;
+            // Suppression de la référence aux formes dans la clé de configuration
+            currentConfigKey = `${gameState.gameMode}_${gameState.gameDuration}_${gameState.difficulty}`;
         }
 
         // ===== GESTION DU SON =====
@@ -1769,11 +1690,11 @@
         function createNumberTargets() {
             document.querySelectorAll('.target').forEach(target => target.remove());
             
-            // Ajustement du nombre de cibles pour mobile
+            // Utilisation des nouvelles valeurs réduites (2-3 cibles)
             let targetCount;
             if (window.innerWidth <= 768) {
                 targetCount = Math.floor(Math.random() * 
-                    (4 - CONFIG.NUMBER_MODE_MIN_TARGETS + 1)) + 
+                    (3 - CONFIG.NUMBER_MODE_MIN_TARGETS + 1)) + 
                     CONFIG.NUMBER_MODE_MIN_TARGETS;
             } else {
                 targetCount = Math.floor(Math.random() * 
@@ -1841,23 +1762,11 @@
                 }
             }
             
-            let shapeClass = 'circle';
-            if (gameState.shapesMode === 'mixed') {
-                // Remplacer les triangles et losanges par des cœurs et étoiles
-                const shapes = ['circle', 'square', 'heart', 'star'];
-                shapeClass = shapes[Math.floor(Math.random() * shapes.length)];
-            }
+            // Toutes les cibles sont maintenant des cercles
+            target.className = `target circle ${sizeClass}`;
             
-            target.className = `target ${shapeClass} ${sizeClass}`;
-            
-            // Gestion des dimensions selon la forme
-            if (shapeClass === 'heart' || shapeClass === 'star') {
-                target.style.width = `${size}px`;
-                target.style.height = `${size}px`;
-            } else {
-                target.style.width = `${size}px`;
-                target.style.height = `${size}px`;
-            }
+            target.style.width = `${size}px`;
+            target.style.height = `${size}px`;
             
             if (isNumberMode) {
                 target.classList.add('number-mode');
@@ -2064,7 +1973,6 @@
             elements.finalTime.textContent = now.toLocaleTimeString();
             elements.finalMode.textContent = gameState.gameMode === 'classic' ? 'Classique' : 'Chiffres';
             elements.finalDifficulty.textContent = gameState.difficulty.charAt(0).toUpperCase() + gameState.difficulty.slice(1);
-            elements.finalShapes.textContent = gameState.shapesMode === 'circle' ? 'Cercles' : 'Variées';
             elements.finalDuration.textContent = `${gameState.gameDuration}s`;
             
             updateRecentHistory();
@@ -2082,7 +1990,6 @@
                 accuracy: accuracy,
                 duration: gameState.gameDuration,
                 difficulty: gameState.difficulty,
-                shapes: gameState.shapesMode,
                 timestamp: now.getTime()
             };
             
@@ -2100,7 +2007,7 @@
         }
 
         function updateBestScores(gameRecord) {
-            const configKey = `${gameRecord.mode}_${gameRecord.duration}_${gameRecord.shapes}_${gameRecord.difficulty}`;
+            const configKey = `${gameRecord.mode}_${gameRecord.duration}_${gameRecord.difficulty}`;
             
             let existingBest = persistentData.bestScores.find(score => 
                 score.configKey === configKey
@@ -2119,7 +2026,6 @@
                     score: gameRecord.score,
                     accuracy: gameRecord.accuracy,
                     duration: gameRecord.duration,
-                    shapes: gameRecord.shapes,
                     difficulty: gameRecord.difficulty,
                     date: gameRecord.date,
                     timestamp: gameRecord.timestamp
@@ -2140,7 +2046,7 @@
             elements.historyTableBody.innerHTML = '';
             
             if (persistentData.gameHistory.length === 0) {
-                elements.historyTableBody.innerHTML = '<tr><td colspan="7" class="no-data">Aucune partie enregistrée</td></tr>';
+                elements.historyTableBody.innerHTML = '<tr><td colspan="6" class="no-data">Aucune partie enregistrée</td></tr>';
                 return;
             }
             
@@ -2152,7 +2058,6 @@
                     <td>${record.score}</td>
                     <td>${record.accuracy}%</td>
                     <td>${record.duration}s</td>
-                    <td>${record.shapes === 'circle' ? 'Cercles' : 'Variées'}</td>
                     <td>${record.difficulty}</td>
                 `;
                 elements.historyTableBody.appendChild(row);
@@ -2167,7 +2072,7 @@
                 .sort((a, b) => b.score - a.score);
             
             if (classicScores.length === 0) {
-                elements.classicTableBody.innerHTML = '<tr><td colspan="7" class="no-data">Aucun record en mode Classique</td></tr>';
+                elements.classicTableBody.innerHTML = '<tr><td colspan="6" class="no-data">Aucun record en mode Classique</td></tr>';
                 return;
             }
             
@@ -2183,7 +2088,6 @@
                     <td><strong>${record.score}</strong></td>
                     <td>${record.accuracy}%</td>
                     <td>${record.duration}s</td>
-                    <td>${record.shapes === 'circle' ? 'Cercles' : 'Variées'}</td>
                     <td>${record.difficulty}</td>
                     <td>${record.date}</td>
                 `;
@@ -2199,7 +2103,7 @@
                 .sort((a, b) => b.score - a.score);
             
             if (numbersScores.length === 0) {
-                elements.numbersTableBody.innerHTML = '<tr><td colspan="7" class="no-data">Aucun record en mode Chiffres</td></tr>';
+                elements.numbersTableBody.innerHTML = '<tr><td colspan="6" class="no-data">Aucun record en mode Chiffres</td></tr>';
                 return;
             }
             
@@ -2215,7 +2119,6 @@
                     <td><strong>${record.score}</strong></td>
                     <td>${record.accuracy}%</td>
                     <td>${record.duration}s</td>
-                    <td>${record.shapes === 'circle' ? 'Cercles' : 'Variées'}</td>
                     <td>${record.difficulty}</td>
                     <td>${record.date}</td>
                 `;
@@ -2231,7 +2134,7 @@
                 .slice(0, 10);
             
             if (allScores.length === 0) {
-                elements.allTimeTableBody.innerHTML = '<tr><td colspan="8" class="no-data">Aucun record enregistré</td></tr>';
+                elements.allTimeTableBody.innerHTML = '<tr><td colspan="7" class="no-data">Aucun record enregistré</td></tr>';
                 return;
             }
             
@@ -2248,7 +2151,6 @@
                     <td>${record.mode === 'classic' ? 'Classique' : 'Chiffres'}</td>
                     <td>${record.accuracy}%</td>
                     <td>${record.duration}s</td>
-                    <td>${record.shapes === 'circle' ? 'Cercles' : 'Variées'}</td>
                     <td>${record.difficulty}</td>
                     <td>${record.date}</td>
                 `;
