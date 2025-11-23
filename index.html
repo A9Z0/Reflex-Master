@@ -392,7 +392,7 @@
             min-height: 60px;
         }
 
-        /* NOUVEAU : Gestion des z-index pour éviter le chevauchement */
+        /* Gestion des z-index pour éviter le chevauchement */
         .target.small {
             z-index: 30;
         }
@@ -415,26 +415,48 @@
             background: linear-gradient(135deg, var(--primary), var(--secondary));
         }
 
-        .target.triangle {
-            width: 0;
-            height: 0;
-            background: transparent !important;
-            border-left: 45px solid transparent;
-            border-right: 45px solid transparent;
-            border-bottom: 80px solid var(--warning);
-            display: flex;
-            align-items: flex-start;
-            justify-content: center;
-            padding-top: 15px;
-        }
-
-        .target.diamond {
+        .target.heart {
+            position: relative;
+            background: linear-gradient(135deg, var(--accent), var(--danger));
             transform: rotate(45deg);
-            background: linear-gradient(135deg, var(--success), var(--primary));
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
-        .target.diamond span {
+        .target.heart::before,
+        .target.heart::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: inherit;
+            border-radius: 50%;
+        }
+
+        .target.heart::before {
+            top: -50%;
+            left: 0;
+        }
+
+        .target.heart::after {
+            top: 0;
+            left: -50%;
+        }
+
+        .target.heart span {
             transform: rotate(-45deg);
+            color: white;
+            font-weight: bold;
+            z-index: 1;
+        }
+
+        .target.star {
+            background: linear-gradient(135deg, var(--warning), #ff9e00);
+            clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         /* Style spécial pour les cibles avec chiffres */
@@ -482,17 +504,18 @@
             left: 50%;
             transform: translate(-50%, -50%);
             background: rgba(20, 20, 30, 0.95);
-            padding: 25px;
+            padding: 20px;
             border-radius: 20px;
             text-align: center;
             box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
             border: 2px solid var(--primary);
             z-index: 10;
-            width: 90%;
+            width: 95%;
             max-width: 500px;
-            max-height: 80%;
+            max-height: 70vh;
             overflow-y: auto;
             display: none;
+            -webkit-overflow-scrolling: touch;
         }
 
         .light-mode .game-over-message {
@@ -501,7 +524,7 @@
         }
 
         .game-over-title {
-            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            font-size: clamp(1.5rem, 4vw, 2.2rem);
             color: var(--accent);
             margin-bottom: 15px;
             text-shadow: 0 0 10px rgba(247, 37, 133, 0.5);
@@ -512,13 +535,13 @@
         }
 
         .score-label {
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             color: var(--text-secondary);
             margin-bottom: 8px;
         }
 
         .final-score {
-            font-size: clamp(2rem, 5vw, 3rem);
+            font-size: clamp(1.8rem, 5vw, 2.8rem);
             color: var(--success);
             text-shadow: 0 0 10px rgba(76, 201, 240, 0.5);
         }
@@ -526,7 +549,7 @@
         .game-stats {
             display: grid;
             grid-template-columns: 1fr;
-            gap: 10px;
+            gap: 8px;
             margin: 15px 0;
             text-align: left;
         }
@@ -730,8 +753,8 @@
             padding: 20px;
             border-radius: 15px;
             width: 100%;
-            max-width: 800px;
-            max-height: 85vh;
+            max-width: 400px;
+            max-height: 70vh;
             overflow-y: auto;
             box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
             border: 2px solid var(--primary);
@@ -992,6 +1015,38 @@
             
             .history-table th, .history-table td {
                 padding: 6px 3px;
+            }
+            
+            .game-over-message {
+                padding: 15px;
+                width: 98%;
+                max-height: 60vh;
+            }
+            
+            .game-stats {
+                grid-template-columns: 1fr;
+                gap: 5px;
+            }
+            
+            .stat-item {
+                padding: 4px 0;
+            }
+            
+            .stat-label, .stat-value {
+                font-size: 0.8rem;
+            }
+            
+            .recent-history {
+                max-height: 150px;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .modal-content {
+                max-width: 95%;
+                padding: 15px;
             }
         }
 
@@ -1342,7 +1397,7 @@
                         <li><strong>Formes</strong> : 
                             <ul>
                                 <li><strong>Cercles</strong> : Formes rondes classiques</li>
-                                <li><strong>Variées</strong> : Mélange de cercles, carrés, triangles et losanges</li>
+                                <li><strong>Variées</strong> : Mélange de cercles, carrés, cœurs et étoiles</li>
                             </ul>
                         </li>
                         <li><strong>Difficulté</strong> : 
@@ -1381,13 +1436,13 @@
             DEFAULT_DURATION: 30,
             MIN_TARGET_SIZE: 40,
             COUNTDOWN_TIME: 3,
-            MAX_HISTORY_ITEMS: 30, // Augmenté à 30 dernières parties
+            MAX_HISTORY_ITEMS: 30,
             NUMBER_MODE_MIN_TARGETS: 2,
             NUMBER_MODE_MAX_TARGETS: 5,
             NUMBER_MODE_MIN_VALUE: 1,
             NUMBER_MODE_MAX_VALUE: 10,
-            MIN_MARGIN: 40,
-            TARGET_SPACING: 30
+            MIN_MARGIN: 50,
+            TARGET_SPACING: 40
         };
 
         // ===== ÉLÉMENTS DU DOM =====
@@ -1499,6 +1554,14 @@
                 }
                 lastTouchEnd = now;
             }, { passive: false });
+            
+            // Amélioration du défilement pour les modals
+            const modals = document.querySelectorAll('.modal-content, .game-over-message');
+            modals.forEach(modal => {
+                modal.addEventListener('touchmove', function(e) {
+                    // Permettre le défilement naturel
+                }, { passive: true });
+            });
         }
 
         function initHistoryTabs() {
@@ -1706,18 +1769,36 @@
         function createNumberTargets() {
             document.querySelectorAll('.target').forEach(target => target.remove());
             
-            const targetCount = Math.floor(Math.random() * 
-                (CONFIG.NUMBER_MODE_MAX_TARGETS - CONFIG.NUMBER_MODE_MIN_TARGETS + 1)) + 
-                CONFIG.NUMBER_MODE_MIN_TARGETS;
+            // Ajustement du nombre de cibles pour mobile
+            let targetCount;
+            if (window.innerWidth <= 768) {
+                targetCount = Math.floor(Math.random() * 
+                    (4 - CONFIG.NUMBER_MODE_MIN_TARGETS + 1)) + 
+                    CONFIG.NUMBER_MODE_MIN_TARGETS;
+            } else {
+                targetCount = Math.floor(Math.random() * 
+                    (CONFIG.NUMBER_MODE_MAX_TARGETS - CONFIG.NUMBER_MODE_MIN_TARGETS + 1)) + 
+                    CONFIG.NUMBER_MODE_MIN_TARGETS;
+            }
             
             const availableNumbers = Array.from({length: CONFIG.NUMBER_MODE_MAX_VALUE}, (_, i) => i + 1);
             const shuffledNumbers = shuffleArray(availableNumbers);
             const selectedNumbers = shuffledNumbers.slice(0, targetCount);
             
+            // Création avec priorité pour éviter les chevauchements
+            const targets = [];
             for (let i = 0; i < targetCount; i++) {
                 const target = createTargetElement(true, selectedNumbers[i]);
-                elements.gameArea.appendChild(target);
+                if (target) {
+                    elements.gameArea.appendChild(target);
+                    targets.push(target);
+                }
             }
+            
+            // Vérification finale et repositionnement si nécessaire
+            setTimeout(() => {
+                repositionOverlappingTargets(targets);
+            }, 10);
         }
 
         function shuffleArray(array) {
@@ -1752,26 +1833,37 @@
                     sizeClass = 'medium';
             }
             
+            // Ajustement de la taille pour mobile
             if (window.innerWidth <= 768) {
                 size = Math.max(size, CONFIG.MIN_TARGET_SIZE);
+                if (gameState.difficulty === 'hard') {
+                    size = Math.min(size, 45);
+                }
             }
             
             let shapeClass = 'circle';
             if (gameState.shapesMode === 'mixed') {
-                const shapes = ['circle', 'square', 'triangle', 'diamond'];
+                // Remplacer les triangles et losanges par des cœurs et étoiles
+                const shapes = ['circle', 'square', 'heart', 'star'];
                 shapeClass = shapes[Math.floor(Math.random() * shapes.length)];
             }
             
             target.className = `target ${shapeClass} ${sizeClass}`;
             
-            if (shapeClass !== 'triangle' && shapeClass !== 'diamond') {
+            // Gestion des dimensions selon la forme
+            if (shapeClass === 'heart' || shapeClass === 'star') {
+                target.style.width = `${size}px`;
+                target.style.height = `${size}px`;
+            } else {
                 target.style.width = `${size}px`;
                 target.style.height = `${size}px`;
             }
             
             if (isNumberMode) {
                 target.classList.add('number-mode');
-                target.textContent = number;
+                const numberSpan = document.createElement('span');
+                numberSpan.textContent = number;
+                target.appendChild(numberSpan);
                 target.setAttribute('data-value', number);
             }
             
@@ -1781,7 +1873,7 @@
             
             let randomX, randomY;
             let attempts = 0;
-            const maxAttempts = 100;
+            const maxAttempts = 200;
             
             do {
                 randomX = Math.floor(Math.random() * maxX) + margin/2;
@@ -1797,6 +1889,46 @@
             target.addEventListener('touchend', handleTargetTouchEnd, { passive: false });
             
             return target;
+        }
+
+        // Repositionnement des cibles qui se chevauchent
+        function repositionOverlappingTargets(targets) {
+            const margin = CONFIG.TARGET_SPACING;
+            
+            for (let i = 0; i < targets.length; i++) {
+                for (let j = i + 1; j < targets.length; j++) {
+                    const target1 = targets[i];
+                    const target2 = targets[j];
+                    
+                    const rect1 = target1.getBoundingClientRect();
+                    const rect2 = target2.getBoundingClientRect();
+                    const gameAreaRect = elements.gameArea.getBoundingClientRect();
+                    
+                    const x1 = rect1.left - gameAreaRect.left;
+                    const y1 = rect1.top - gameAreaRect.top;
+                    const w1 = rect1.width;
+                    const h1 = rect1.height;
+                    
+                    const x2 = rect2.left - gameAreaRect.left;
+                    const y2 = rect2.top - gameAreaRect.top;
+                    const w2 = rect2.width;
+                    const h2 = rect2.height;
+                    
+                    // Vérifier le chevauchement
+                    if (x1 < x2 + w2 + margin &&
+                        x1 + w1 + margin > x2 &&
+                        y1 < y2 + h2 + margin &&
+                        y1 + h1 + margin > y2) {
+                        
+                        // Déplacer la deuxième cible
+                        const newX = Math.floor(Math.random() * (elements.gameArea.offsetWidth - w2 - CONFIG.MIN_MARGIN)) + CONFIG.MIN_MARGIN/2;
+                        const newY = Math.floor(Math.random() * (elements.gameArea.offsetHeight - h2 - CONFIG.MIN_MARGIN)) + CONFIG.MIN_MARGIN/2;
+                        
+                        target2.style.left = `${newX}px`;
+                        target2.style.top = `${newY}px`;
+                    }
+                }
+            }
         }
 
         function isOverlapping(x, y, size) {
