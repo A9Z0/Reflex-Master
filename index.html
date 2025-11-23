@@ -1,0 +1,2327 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>ReflexMaster - Jeu de Réflexes et Chiffres</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ===== VARIABLES ET RESET ===== */
+        :root {
+            --primary: #4361ee;
+            --secondary: #3a0ca3;
+            --accent: #f72585;
+            --success: #4cc9f0;
+            --warning: #f8961e;
+            --danger: #e63946;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --bg-primary: #121212;
+            --bg-secondary: #1e1e1e;
+            --bg-tertiary: #2d2d2d;
+            --text-primary: #f8f9fa;
+            --text-secondary: #adb5bd;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        .light-mode {
+            --bg-primary: #f0f2f5;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #e9ecef;
+            --text-primary: #212529;
+            --text-secondary: #6c757d;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            touch-action: manipulation;
+        }
+
+        html, body {
+            height: 100%;
+            overflow-x: hidden;
+            position: relative;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 20px;
+            color: var(--text-primary);
+            transition: var(--transition);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, sans-serif;
+        }
+
+        /* ===== STRUCTURE PRINCIPALE ===== */
+        .game-container {
+            background-color: var(--bg-secondary);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            width: 95%;
+            max-width: 1100px;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            overflow: visible;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: var(--transition);
+            margin: 0 auto;
+        }
+
+        /* ===== EN-TÊTE ET THÈME ===== */
+        .game-header {
+            margin-bottom: 20px;
+            position: relative;
+            padding-top: 50px;
+        }
+
+        .theme-selector {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--bg-tertiary);
+            padding: 6px 12px;
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            z-index: 20;
+        }
+
+        @media (max-width: 768px) {
+            .theme-selector {
+                top: 5px;
+                right: 5px;
+                padding: 5px 10px;
+            }
+            
+            .theme-label {
+                display: none;
+            }
+        }
+
+        .theme-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        .theme-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .theme-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #2d2d2d;
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .light-mode .slider {
+            background-color: #ccc;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--primary);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        .slider-icon {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 12px;
+            color: white;
+        }
+
+        .sun-icon {
+            left: 6px;
+        }
+
+        .moon-icon {
+            right: 6px;
+        }
+
+        h1 {
+            color: var(--text-primary);
+            margin-bottom: 10px;
+            font-size: clamp(1.8rem, 5vw, 3rem);
+            text-shadow: 0 0 10px rgba(67, 97, 238, 0.5);
+            background: linear-gradient(to right, var(--success), var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 800;
+            letter-spacing: -1px;
+        }
+
+        .game-subtitle {
+            color: var(--text-secondary);
+            font-size: clamp(1rem, 3vw, 1.3rem);
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        /* ===== TABLEAU DE BORD ===== */
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        @media (min-width: 480px) {
+            .dashboard {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        .dashboard-item {
+            background: linear-gradient(135deg, rgba(67, 97, 238, 0.2), rgba(58, 12, 163, 0.2));
+            border-radius: 15px;
+            padding: 15px 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: var(--transition);
+        }
+
+        .light-mode .dashboard-item {
+            background: linear-gradient(135deg, rgba(67, 97, 238, 0.1), rgba(58, 12, 163, 0.1));
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .dashboard-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .dashboard-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        .dashboard-value {
+            font-size: clamp(1.5rem, 4vw, 2.5rem);
+            font-weight: bold;
+            color: var(--success);
+            text-shadow: 0 0 10px rgba(76, 201, 240, 0.5);
+        }
+
+        #timer {
+            color: var(--warning);
+        }
+
+        #highScore {
+            color: var(--accent);
+        }
+
+        #accuracy {
+            color: var(--primary);
+        }
+
+        /* ===== SÉLECTEURS DE JEU ===== */
+        .game-selectors {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .game-selectors {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .selector-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: var(--bg-tertiary);
+            padding: 12px;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .light-mode .selector-group {
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .selector-title {
+            font-size: 1rem;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .selector-options {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .duration-options {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .option-btn {
+            padding: 8px 12px;
+            background-color: var(--bg-secondary);
+            border: 2px solid var(--bg-tertiary);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 500;
+            color: var(--text-primary);
+            white-space: nowrap;
+            flex: 1;
+            text-align: center;
+            min-width: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            min-width: 60px;
+        }
+
+        .light-mode .option-btn {
+            border: 2px solid #ddd;
+        }
+
+        .option-btn.active {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .option-btn:hover:not(.active) {
+            border-color: var(--primary);
+        }
+
+        /* ===== ZONE DE JEU ===== */
+        .game-area {
+            position: relative;
+            height: 50vh;
+            min-height: 300px;
+            max-height: 450px;
+            background: linear-gradient(135deg, rgba(30, 30, 50, 0.8), rgba(10, 10, 30, 0.9));
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 25px;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+            border: 2px solid rgba(67, 97, 238, 0.3);
+            margin-top: 15px;
+            touch-action: manipulation;
+        }
+
+        .light-mode .game-area {
+            background: linear-gradient(135deg, #e6f7ff, #f0f8ff);
+            border: 2px solid rgba(67, 97, 238, 0.5);
+        }
+
+        /* ===== CIBLES ===== */
+        .target {
+            position: absolute;
+            cursor: pointer;
+            transition: transform 0.15s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-weight: bold;
+            font-size: clamp(1rem, 3vw, 1.4rem);
+            animation: pulse 1.5s infinite alternate;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+            z-index: 10;
+            min-width: 60px;
+            min-height: 60px;
+        }
+
+        /* NOUVEAU : Gestion des z-index pour éviter le chevauchement */
+        .target.small {
+            z-index: 30;
+        }
+
+        .target.medium {
+            z-index: 20;
+        }
+
+        .target.large {
+            z-index: 10;
+        }
+
+        .target.circle {
+            border-radius: 50%;
+            background: radial-gradient(circle, var(--accent), var(--danger));
+        }
+
+        .target.square {
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+        }
+
+        .target.triangle {
+            width: 0;
+            height: 0;
+            background: transparent !important;
+            border-left: 45px solid transparent;
+            border-right: 45px solid transparent;
+            border-bottom: 80px solid var(--warning);
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding-top: 15px;
+        }
+
+        .target.diamond {
+            transform: rotate(45deg);
+            background: linear-gradient(135deg, var(--success), var(--primary));
+        }
+
+        .target.diamond span {
+            transform: rotate(-45deg);
+        }
+
+        /* Style spécial pour les cibles avec chiffres */
+        .target.number-mode {
+            font-size: clamp(1.2rem, 4vw, 1.8rem);
+            font-weight: 800;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 10px rgba(255, 255, 255, 0.3); }
+            100% { transform: scale(1.1); box-shadow: 0 0 20px rgba(255, 255, 255, 0.6); }
+        }
+
+        .target:hover {
+            transform: scale(1.15);
+            animation: none;
+        }
+
+        .target:active {
+            transform: scale(0.9);
+        }
+
+        /* ===== COMPTE À REBOURS ===== */
+        .countdown {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: clamp(4rem, 15vw, 8rem);
+            color: white;
+            z-index: 10;
+            display: none;
+            text-shadow: 0 0 20px var(--primary);
+        }
+
+        /* ===== MESSAGE DE FIN ===== */
+        .game-over-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(20, 20, 30, 0.95);
+            padding: 25px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
+            border: 2px solid var(--primary);
+            z-index: 10;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80%;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .light-mode .game-over-message {
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .game-over-title {
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            color: var(--accent);
+            margin-bottom: 15px;
+            text-shadow: 0 0 10px rgba(247, 37, 133, 0.5);
+        }
+
+        .final-score-container {
+            margin-bottom: 15px;
+        }
+
+        .score-label {
+            font-size: 1.3rem;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .final-score {
+            font-size: clamp(2rem, 5vw, 3rem);
+            color: var(--success);
+            text-shadow: 0 0 10px rgba(76, 201, 240, 0.5);
+        }
+
+        .game-stats {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            margin: 15px 0;
+            text-align: left;
+        }
+
+        @media (min-width: 480px) {
+            .game-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .light-mode .stat-item {
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .stat-value {
+            color: var(--text-primary);
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .recent-history {
+            margin-top: 15px;
+            padding: 12px;
+            background: rgba(30, 30, 40, 0.7);
+            border-radius: 10px;
+            text-align: left;
+        }
+
+        .light-mode .recent-history {
+            background: rgba(240, 240, 240, 0.7);
+        }
+
+        .history-title {
+            font-size: 1.1rem;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 5px;
+        }
+
+        .light-mode .history-title {
+            border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            font-size: 0.9rem;
+        }
+
+        .light-mode .history-item {
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .history-score {
+            color: var(--success);
+            font-weight: bold;
+        }
+
+        /* ===== BOUTONS DE CONTRÔLE ===== */
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+            }
+        }
+
+        .control-btn {
+            padding: 12px 20px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: bold;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            flex: 1;
+            min-width: 140px;
+            max-width: 200px;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        @media (max-width: 768px) {
+            .control-btn {
+                min-width: 100%;
+                max-width: 100%;
+            }
+        }
+
+        #startBtn {
+            background: linear-gradient(135deg, #00b09b, #96c93d);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 176, 155, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        #startBtn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: 0.5s;
+        }
+
+        #startBtn:hover::before {
+            left: 100%;
+        }
+
+        #pauseBtn {
+            background: linear-gradient(to right, var(--warning), #ff9e00);
+            color: white;
+        }
+
+        #soundBtn {
+            background: linear-gradient(to right, var(--primary), #4895ef);
+            color: white;
+        }
+
+        #historyBtn {
+            background: linear-gradient(to right, var(--secondary), #560bad);
+            color: white;
+        }
+
+        #rulesBtn {
+            background: linear-gradient(to right, var(--accent), #b5179e);
+            color: white;
+        }
+
+        .control-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .control-btn:active {
+            transform: translateY(1px);
+        }
+
+        .control-btn:disabled {
+            background: #444;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+            color: #777;
+        }
+
+        .light-mode .control-btn:disabled {
+            background: #ccc;
+            color: #999;
+        }
+
+        /* ===== MODALS ===== */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            display: none;
+            padding: 15px;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            padding: 20px;
+            border-radius: 15px;
+            width: 100%;
+            max-width: 800px;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+            border: 2px solid var(--primary);
+            color: var(--text-primary);
+        }
+
+        .light-mode .modal-content {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            color: var(--text-primary);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 8px;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-primary);
+            opacity: 0.7;
+        }
+
+        .modal-controls {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        /* ===== HISTORIQUE AMÉLIORÉ ===== */
+        .history-tabs {
+            display: flex;
+            margin-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            flex-wrap: wrap;
+        }
+
+        .light-mode .history-tabs {
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .history-tab {
+            padding: 10px 15px;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition);
+            border-bottom: 2px solid transparent;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .history-tab.active {
+            color: var(--primary);
+            border-bottom: 2px solid var(--primary);
+        }
+
+        .history-content {
+            display: none;
+        }
+
+        .history-content.active {
+            display: block;
+        }
+
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 0.85rem;
+        }
+
+        .history-table th, .history-table td {
+            padding: 10px 6px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .light-mode .history-table th, 
+        .light-mode .history-table td {
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .history-table th {
+            background-color: rgba(30, 30, 40, 0.7);
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .light-mode .history-table th {
+            background-color: rgba(240, 240, 240, 0.7);
+        }
+
+        .history-table tr:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .light-mode .history-table tr:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        .medal {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 8px;
+            font-weight: bold;
+        }
+
+        .medal-gold {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #000;
+        }
+
+        .medal-silver {
+            background: linear-gradient(135deg, #C0C0C0, #A0A0A0);
+            color: #000;
+        }
+
+        .medal-bronze {
+            background: linear-gradient(135deg, #CD7F32, #8B4513);
+            color: #fff;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        /* ===== INSTRUCTIONS ===== */
+        .instructions {
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(30, 30, 40, 0.7);
+            border-radius: 15px;
+            text-align: left;
+            box-shadow: var(--shadow);
+            border-left: 5px solid var(--primary);
+        }
+
+        .light-mode .instructions {
+            background: rgba(240, 240, 240, 0.7);
+        }
+
+        .instructions h3 {
+            color: var(--primary);
+            margin-bottom: 12px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 1.3rem;
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 8px;
+        }
+
+        .instructions ul {
+            padding-left: 20px;
+            color: var(--text-primary);
+        }
+
+        .instructions li {
+            margin-bottom: 10px;
+            line-height: 1.5;
+            font-size: 0.95rem;
+        }
+
+        .instructions li strong {
+            color: var(--accent);
+        }
+
+        /* ===== RÈGLES ===== */
+        .rules-section {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .light-mode .rules-section {
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        .rules-section h3 {
+            color: var(--primary);
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .rules-section p, .rules-section ul {
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+        
+        .rules-section ul {
+            padding-left: 20px;
+        }
+        
+        .rules-section li {
+            margin-bottom: 8px;
+        }
+
+        /* ===== PIED DE PAGE ===== */
+        .game-footer {
+            margin-top: 20px;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            text-align: center;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .light-mode .game-footer {
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        /* ===== CORRECTIONS MOBILES SPÉCIFIQUES ===== */
+        @media (max-width: 380px) {
+            .game-area {
+                height: 35vh;
+                min-height: 200px;
+                max-height: 280px;
+            }
+            
+            .dashboard-value {
+                font-size: 1.5rem;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            .game-subtitle {
+                font-size: 0.9rem;
+            }
+            
+            .history-table {
+                font-size: 0.7rem;
+            }
+            
+            .history-table th, .history-table td {
+                padding: 6px 3px;
+            }
+        }
+
+        /* Correction iOS */
+        @supports (-webkit-touch-callout: none) {
+            body {
+                min-height: -webkit-fill-available;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <!-- Curseur de thème amélioré -->
+        <div class="theme-selector">
+            <span class="theme-label">Apparence</span>
+            <label class="theme-switch">
+                <input type="checkbox" id="themeToggle">
+                <span class="slider">
+                    <i class="fas fa-sun slider-icon sun-icon"></i>
+                    <i class="fas fa-moon slider-icon moon-icon"></i>
+                </span>
+            </label>
+        </div>
+        
+        <div class="game-header">
+            <h1><i class="fas fa-bullseye"></i> ReflexMaster</h1>
+            <p class="game-subtitle">Défiez vos réflexes et votre précision !</p>
+        </div>
+        
+        <!-- Tableau de bord -->
+        <div class="dashboard">
+            <div class="dashboard-item">
+                <div class="dashboard-label">Score</div>
+                <div id="score" class="dashboard-value">0</div>
+            </div>
+            <div class="dashboard-item">
+                <div class="dashboard-label">Temps</div>
+                <div id="timer" class="dashboard-value">30</div>
+            </div>
+            <div class="dashboard-item">
+                <div class="dashboard-label">Meilleur Score</div>
+                <div id="highScore" class="dashboard-value">0</div>
+            </div>
+            <div class="dashboard-item">
+                <div class="dashboard-label">Précision</div>
+                <div id="accuracy" class="dashboard-value">0%</div>
+            </div>
+        </div>
+        
+        <!-- Sélecteurs de jeu - AJOUT DU MODE CHIFFRES -->
+        <div class="game-selectors">
+            <div class="selector-group">
+                <div class="selector-title">Mode de jeu</div>
+                <div class="selector-options">
+                    <div class="option-btn active" data-mode="classic">Classique</div>
+                    <div class="option-btn" data-mode="numbers">Chiffres</div>
+                </div>
+            </div>
+            
+            <div class="selector-group">
+                <div class="selector-title">Durée du jeu</div>
+                <div class="duration-options">
+                    <div class="option-btn" data-duration="10">10s</div>
+                    <div class="option-btn" data-duration="20">20s</div>
+                    <div class="option-btn active" data-duration="30">30s</div>
+                    <div class="option-btn" data-duration="60">1min</div>
+                    <div class="option-btn" data-duration="120">2min</div>
+                </div>
+            </div>
+            
+            <div class="selector-group">
+                <div class="selector-title">Formes</div>
+                <div class="selector-options">
+                    <div class="option-btn active" data-shapes="circle">Cercles</div>
+                    <div class="option-btn" data-shapes="mixed">Variées</div>
+                </div>
+            </div>
+            
+            <div class="selector-group">
+                <div class="selector-title">Difficulté</div>
+                <div class="selector-options">
+                    <div class="option-btn active" data-difficulty="easy">Facile</div>
+                    <div class="option-btn" data-difficulty="medium">Moyen</div>
+                    <div class="option-btn" data-difficulty="hard">Difficile</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Zone de jeu -->
+        <div class="game-area" id="gameArea">
+            <div class="countdown" id="countdown">3</div>
+            
+            <!-- Message de fin de jeu -->
+            <div class="game-over-message" id="gameOverMessage">
+                <div class="game-over-title">Partie terminée !</div>
+                
+                <div class="final-score-container">
+                    <div class="score-label">Score :</div>
+                    <div class="final-score" id="finalScore">0</div>
+                </div>
+                
+                <div class="game-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">Date :</span>
+                        <span class="stat-value" id="finalDate">-</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Heure :</span>
+                        <span class="stat-value" id="finalTime">-</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Mode :</span>
+                        <span class="stat-value" id="finalMode">-</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Difficulté :</span>
+                        <span class="stat-value" id="finalDifficulty">-</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Formes :</span>
+                        <span class="stat-value" id="finalShapes">-</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Précision :</span>
+                        <span class="stat-value" id="finalAccuracy">0%</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Durée :</span>
+                        <span class="stat-value" id="finalDuration">0s</span>
+                    </div>
+                </div>
+                
+                <div class="recent-history">
+                    <div class="history-title">Dernières Parties</div>
+                    <div id="recentHistoryList"></div>
+                </div>
+                
+                <div class="modal-controls">
+                    <button id="playAgainBtn" class="control-btn" style="background: linear-gradient(135deg, #00b09b, #96c93d);">
+                        <i class="fas fa-redo"></i> Rejouer
+                    </button>
+                    <button id="closeMessageBtn" class="control-btn" style="background: linear-gradient(to right, var(--primary), #4895ef);">
+                        <i class="fas fa-times"></i> Fermer
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Contrôles de jeu -->
+        <div class="controls">
+            <button id="startBtn" class="control-btn">
+                <i class="fas fa-play"></i> Commencer
+            </button>
+            <button id="pauseBtn" class="control-btn" disabled>
+                <i class="fas fa-pause"></i> Pause
+            </button>
+            <button id="soundBtn" class="control-btn">
+                <i class="fas fa-volume-up"></i> Son
+            </button>
+            <button id="historyBtn" class="control-btn">
+                <i class="fas fa-history"></i> Historique
+            </button>
+            <button id="rulesBtn" class="control-btn">
+                <i class="fas fa-book"></i> Règles
+            </button>
+        </div>
+        
+        <!-- Instructions -->
+        <div class="instructions">
+            <h3>Comment jouer ?</h3>
+            <ul>
+                <li><strong>Mode Classique</strong> : Cliquez sur les formes qui apparaissent pour marquer des points</li>
+                <li><strong>Mode Chiffres</strong> : Cliquez sur les formes avec des chiffres pour marquer des points (plus le chiffre est élevé, plus vous gagnez de points)</li>
+                <li>Les cibles <strong>se déplacent</strong> à chaque clic réussi</li>
+                <li>Si vous <strong>ratez une cible</strong>, elle disparaît et une nouvelle apparaît</li>
+                <li>Vous avez un <strong>temps limité</strong> pour obtenir le meilleur score possible</li>
+                <li>Votre <strong>précision</strong> est calculée en fonction de vos clics réussis</li>
+                <li><strong>Personnalisez</strong> la durée, les formes et la difficulté pour plus de défis !</li>
+                <li><strong>Améliorez votre score</strong> en battant vos records personnels !</li>
+            </ul>
+        </div>
+        
+        <div class="game-footer">
+            <p>Partagez votre score en commentaire !</p>
+        </div>
+    </div>
+
+    <!-- Modal Pause -->
+    <div class="modal" id="pauseModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Jeu en Pause</h2>
+                <button class="close-modal" id="closePauseModal">&times;</button>
+            </div>
+            <p>Le jeu est actuellement en pause. Que souhaitez-vous faire ?</p>
+            <div class="modal-controls">
+                <button id="resumeBtn" class="control-btn" style="background: linear-gradient(135deg, #00b09b, #96c93d);">
+                    <i class="fas fa-play"></i> Reprendre
+                </button>
+                <button id="newGameBtn" class="control-btn" style="background: linear-gradient(to right, var(--primary), #4895ef);">
+                    <i class="fas fa-redo"></i> Nouvelle Partie
+                </button>
+                <button id="quitBtn" class="control-btn" style="background: linear-gradient(to right, var(--accent), #b5179e);">
+                    <i class="fas fa-times"></i> Quitter
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Historique AMÉLIORÉ -->
+    <div class="modal" id="historyModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Historique des Parties</h2>
+                <button class="close-modal" id="closeHistoryModal">&times;</button>
+            </div>
+            
+            <div class="history-tabs">
+                <button class="history-tab active" data-tab="recent">Dernières Parties</button>
+                <button class="history-tab" data-tab="classic">Records Classique</button>
+                <button class="history-tab" data-tab="numbers">Records Chiffres</button>
+                <button class="history-tab" data-tab="allTime">Records Tous Temps</button>
+            </div>
+            
+            <div class="history-content active" id="recentHistory">
+                <p>Vos 30 dernières parties :</p>
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>Date/Heure</th>
+                            <th>Mode</th>
+                            <th>Score</th>
+                            <th>Précision</th>
+                            <th>Durée</th>
+                            <th>Formes</th>
+                            <th>Difficulté</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyTableBody"></tbody>
+                </table>
+            </div>
+            
+            <div class="history-content" id="classicHistory">
+                <p>Vos meilleurs scores en mode Classique :</p>
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Score</th>
+                            <th>Précision</th>
+                            <th>Durée</th>
+                            <th>Formes</th>
+                            <th>Difficulté</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody id="classicTableBody"></tbody>
+                </table>
+            </div>
+            
+            <div class="history-content" id="numbersHistory">
+                <p>Vos meilleurs scores en mode Chiffres :</p>
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Score</th>
+                            <th>Précision</th>
+                            <th>Durée</th>
+                            <th>Formes</th>
+                            <th>Difficulté</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody id="numbersTableBody"></tbody>
+                </table>
+            </div>
+            
+            <div class="history-content" id="allTimeHistory">
+                <p>Vos records personnels tous temps :</p>
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Score</th>
+                            <th>Mode</th>
+                            <th>Précision</th>
+                            <th>Durée</th>
+                            <th>Formes</th>
+                            <th>Difficulté</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody id="allTimeTableBody"></tbody>
+                </table>
+            </div>
+            
+            <div class="modal-controls">
+                <button id="clearHistoryBtn" class="control-btn" style="background: linear-gradient(to right, var(--accent), #b5179e);">
+                    <i class="fas fa-trash"></i> Effacer l'historique
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Règles - MIS À JOUR AVEC LE MODE CHIFFRES -->
+    <div class="modal" id="rulesModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Règles du Jeu</h2>
+                <button class="close-modal" id="closeRulesModal">&times;</button>
+            </div>
+            
+            <div class="rules-content">
+                <div class="rules-section">
+                    <h3><i class="fas fa-bullseye"></i> Objectif du jeu</h3>
+                    <p>ReflexMaster est conçu pour améliorer vos réflexes visuels, votre coordination œil-main et votre concentration. Deux modes de jeu sont disponibles pour varier les défis : le mode Classique et le mode Chiffres.</p>
+                </div>
+                
+                <div class="rules-section">
+                    <h3><i class="fas fa-gamepad"></i> Mode Classique</h3>
+                    <ul>
+                        <li>Cliquez sur <strong>"Commencer"</strong> pour lancer une nouvelle partie</li>
+                        <li>Des formes apparaîtront à l'écran - <strong>cliquez dessus le plus vite possible</strong></li>
+                        <li>Chaque clic réussi rapporte <strong>1 point</strong></li>
+                        <li>Les formes se déplacent après chaque clic réussi</li>
+                        <li>Si vous <strong>ratez une forme</strong>, elle disparaît et une nouvelle apparaît</li>
+                    </ul>
+                </div>
+                
+                <div class="rules-section">
+                    <h3><i class="fas fa-sort-numeric-up"></i> Mode Chiffres</h3>
+                    <ul>
+                        <li>Entre <strong>2 et 5 formes</strong> apparaissent simultanément, chacune avec un <strong>chiffre unique</strong></li>
+                        <li>Les chiffres vont de <strong>1 à 10</strong> et sont tous différents dans une même distribution</li>
+                        <li>Chaque forme cliquée rapporte <strong>le nombre de points correspondant au chiffre</strong></li>
+                        <li>Exemple : cliquer sur un "5" rapporte 5 points, sur un "10" rapporte 10 points</li>
+                        <li>Après chaque clic (réussi ou raté), <strong>toutes les formes disparaissent</strong> et de nouvelles apparaissent avec de nouveaux chiffres</li>
+                        <li>Le but est de <strong>maximiser votre score</strong> en cliquant sur les formes avec les chiffres les plus élevés</li>
+                    </ul>
+                </div>
+                
+                <div class="rules-section">
+                    <h3><i class="fas fa-sliders-h"></i> Personnalisation</h3>
+                    <ul>
+                        <li><strong>Durée</strong> : Choisissez entre 10s, 20s, 30s, 1min ou 2min</li>
+                        <li><strong>Formes</strong> : 
+                            <ul>
+                                <li><strong>Cercles</strong> : Formes rondes classiques</li>
+                                <li><strong>Variées</strong> : Mélange de cercles, carrés, triangles et losanges</li>
+                            </ul>
+                        </li>
+                        <li><strong>Difficulté</strong> : 
+                            <ul>
+                                <li><strong>Facile</strong> : Cibles grandes (90px) et lentes</li>
+                                <li><strong>Moyen</strong> : Cibles de taille moyenne (70px) et vitesse normale</li>
+                                <li><strong>Difficile</strong> : Cibles petites (50px) et rapides</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="rules-section">
+                    <h3><i class="fas fa-trophy"></i> Conditions de victoire</h3>
+                    <p>Il n'y a pas de victoire définitive, mais vous pouvez :</p>
+                    <ul>
+                        <li>Battre votre <strong>meilleur score personnel</strong></li>
+                        <li>Améliorer votre <strong>précision</strong> (pourcentage de clics réussis)</li>
+                        <li>Apparaître en tête de <strong>l'historique des parties</strong></li>
+                        <li>Défier vos amis en partageant vos scores</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="modal-controls">
+                <button id="closeRulesBtn" class="control-btn" style="background: linear-gradient(to right, var(--primary), #4895ef);">
+                    <i class="fas fa-check"></i> J'ai compris
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== CONFIGURATION GÉNÉRALE =====
+        const CONFIG = {
+            DEFAULT_DURATION: 30,
+            MIN_TARGET_SIZE: 40,
+            COUNTDOWN_TIME: 3,
+            MAX_HISTORY_ITEMS: 30, // Augmenté à 30 dernières parties
+            NUMBER_MODE_MIN_TARGETS: 2,
+            NUMBER_MODE_MAX_TARGETS: 5,
+            NUMBER_MODE_MIN_VALUE: 1,
+            NUMBER_MODE_MAX_VALUE: 10,
+            MIN_MARGIN: 40,
+            TARGET_SPACING: 30
+        };
+
+        // ===== ÉLÉMENTS DU DOM =====
+        const elements = {
+            gameArea: document.getElementById('gameArea'),
+            score: document.getElementById('score'),
+            timer: document.getElementById('timer'),
+            highScore: document.getElementById('highScore'),
+            accuracy: document.getElementById('accuracy'),
+            startBtn: document.getElementById('startBtn'),
+            pauseBtn: document.getElementById('pauseBtn'),
+            soundBtn: document.getElementById('soundBtn'),
+            historyBtn: document.getElementById('historyBtn'),
+            rulesBtn: document.getElementById('rulesBtn'),
+            countdown: document.getElementById('countdown'),
+            gameOverMessage: document.getElementById('gameOverMessage'),
+            finalScore: document.getElementById('finalScore'),
+            finalAccuracy: document.getElementById('finalAccuracy'),
+            finalDate: document.getElementById('finalDate'),
+            finalTime: document.getElementById('finalTime'),
+            finalMode: document.getElementById('finalMode'),
+            finalDifficulty: document.getElementById('finalDifficulty'),
+            finalShapes: document.getElementById('finalShapes'),
+            finalDuration: document.getElementById('finalDuration'),
+            recentHistoryList: document.getElementById('recentHistoryList'),
+            playAgainBtn: document.getElementById('playAgainBtn'),
+            closeMessageBtn: document.getElementById('closeMessageBtn'),
+            themeToggle: document.getElementById('themeToggle'),
+            historyTableBody: document.getElementById('historyTableBody'),
+            classicTableBody: document.getElementById('classicTableBody'),
+            numbersTableBody: document.getElementById('numbersTableBody'),
+            allTimeTableBody: document.getElementById('allTimeTableBody')
+        };
+
+        // ===== ÉTAT DU JEU =====
+        const gameState = {
+            score: 0,
+            timeLeft: CONFIG.DEFAULT_DURATION,
+            gameDuration: CONFIG.DEFAULT_DURATION,
+            gameActive: false,
+            gamePaused: false,
+            timerInterval: null,
+            totalClicks: 0,
+            successfulClicks: 0,
+            soundEnabled: localStorage.getItem('soundEnabled') !== 'false',
+            countdownActive: false,
+            gameMode: 'classic',
+            shapesMode: 'circle',
+            difficulty: 'easy',
+            isLightMode: localStorage.getItem('lightMode') === 'true'
+        };
+
+        // ===== DONNÉES PERSISTANTES =====
+        const persistentData = {
+            gameHistory: JSON.parse(localStorage.getItem('gameHistory')) || [],
+            highScores: JSON.parse(localStorage.getItem('highScores')) || {},
+            bestScores: JSON.parse(localStorage.getItem('bestScores')) || []
+        };
+
+        let currentConfigKey = '';
+        let audioContext = null;
+
+        // ===== INITIALISATION =====
+        function init() {
+            initDisplay();
+            initTheme();
+            setupSelectors();
+            setupEventListeners();
+            initMobileSupport();
+            initHistoryTabs();
+        }
+
+        function initDisplay() {
+            updateConfigKey();
+            const currentHighScore = persistentData.highScores[currentConfigKey] || 0;
+            elements.highScore.textContent = currentHighScore;
+            elements.accuracy.textContent = "0%";
+            updateHistoryTables();
+            updateSoundButton();
+            
+            document.addEventListener('click', function initAudioOnClick() {
+                initAudioContext();
+                document.removeEventListener('click', initAudioOnClick);
+            }, { once: true });
+        }
+
+        function initTheme() {
+            if (gameState.isLightMode) {
+                document.body.classList.add('light-mode');
+                elements.themeToggle.checked = true;
+            } else {
+                document.body.classList.remove('light-mode');
+                elements.themeToggle.checked = false;
+            }
+        }
+
+        function initMobileSupport() {
+            document.addEventListener('touchstart', function(event) {
+                if (event.touches.length > 1) {
+                    event.preventDefault();
+                }
+            }, { passive: false });
+            
+            let lastTouchEnd = 0;
+            document.addEventListener('touchend', function(event) {
+                const now = (new Date()).getTime();
+                if (now - lastTouchEnd <= 300) {
+                    event.preventDefault();
+                }
+                lastTouchEnd = now;
+            }, { passive: false });
+        }
+
+        function initHistoryTabs() {
+            const tabs = document.querySelectorAll('.history-tab');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // Désactiver tous les onglets
+                    tabs.forEach(t => t.classList.remove('active'));
+                    // Activer l'onglet cliqué
+                    this.classList.add('active');
+                    
+                    // Masquer tous les contenus
+                    document.querySelectorAll('.history-content').forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    
+                    // Afficher le contenu correspondant
+                    const tabId = this.getAttribute('data-tab');
+                    document.getElementById(tabId + 'History').classList.add('active');
+                });
+            });
+        }
+
+        // ===== GESTION DU THÈME =====
+        function toggleTheme() {
+            gameState.isLightMode = !gameState.isLightMode;
+            localStorage.setItem('lightMode', gameState.isLightMode);
+            initTheme();
+        }
+
+        // ===== GESTION DES SÉLECTEURS =====
+        function setupSelectors() {
+            // Mode de jeu
+            setupSelector('[data-mode]', 'mode', (value) => {
+                gameState.gameMode = value;
+            });
+            
+            // Durée
+            setupSelector('[data-duration]', 'duration', (value) => {
+                gameState.gameDuration = parseInt(value);
+                gameState.timeLeft = gameState.gameDuration;
+                elements.timer.textContent = gameState.timeLeft;
+            });
+            
+            // Formes
+            setupSelector('[data-shapes]', 'shapes', (value) => {
+                gameState.shapesMode = value;
+            });
+            
+            // Difficulté
+            setupSelector('[data-difficulty]', 'difficulty', (value) => {
+                gameState.difficulty = value;
+            });
+        }
+
+        function setupSelector(selector, type, callback) {
+            const options = document.querySelectorAll(selector);
+            options.forEach(option => {
+                option.addEventListener('click', function() {
+                    options.forEach(opt => opt.classList.remove('active'));
+                    this.classList.add('active');
+                    const value = this.getAttribute(`data-${type}`);
+                    callback(value);
+                    
+                    updateConfigKey();
+                    const currentHighScore = persistentData.highScores[currentConfigKey] || 0;
+                    elements.highScore.textContent = currentHighScore;
+                });
+            });
+        }
+
+        function updateConfigKey() {
+            currentConfigKey = `${gameState.gameMode}_${gameState.gameDuration}_${gameState.shapesMode}_${gameState.difficulty}`;
+        }
+
+        // ===== GESTION DU SON =====
+        function initAudioContext() {
+            if (!audioContext) {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (AudioContext) {
+                    audioContext = new AudioContext();
+                    if (audioContext.state === 'suspended') {
+                        audioContext.resume();
+                    }
+                }
+            }
+            return audioContext;
+        }
+
+        function playSound(type) {
+            if (!gameState.soundEnabled) return;
+            
+            const context = initAudioContext();
+            if (!context) return;
+            
+            try {
+                const oscillator = context.createOscillator();
+                const gainNode = context.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(context.destination);
+                
+                const sounds = {
+                    click: { frequencies: [800], duration: 0.1 },
+                    success: { frequencies: [523.25, 659.25, 783.99], duration: 0.3 },
+                    countdown: { frequencies: [440], duration: 0.5 },
+                    gameOver: { frequencies: [392, 349.23, 293.66], duration: 0.6 }
+                };
+                
+                const sound = sounds[type];
+                if (!sound) return;
+                
+                gainNode.gain.setValueAtTime(0.1, context.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, context.currentTime + sound.duration);
+                
+                oscillator.start(context.currentTime);
+                oscillator.stop(context.currentTime + sound.duration);
+            } catch (error) {
+                console.log("Erreur audio:", error);
+            }
+        }
+
+        function toggleSound() {
+            gameState.soundEnabled = !gameState.soundEnabled;
+            localStorage.setItem('soundEnabled', gameState.soundEnabled);
+            updateSoundButton();
+        }
+
+        function updateSoundButton() {
+            elements.soundBtn.innerHTML = gameState.soundEnabled ? 
+                '<i class="fas fa-volume-up"></i> Son' : 
+                '<i class="fas fa-volume-mute"></i> Son';
+        }
+
+        // ===== LOGIQUE PRINCIPALE DU JEU =====
+        function startGame() {
+            if (gameState.gameActive || gameState.countdownActive) return;
+            
+            elements.gameOverMessage.style.display = 'none';
+            elements.startBtn.disabled = false;
+            
+            resetGame();
+            startCountdown();
+        }
+
+        function startCountdown() {
+            gameState.countdownActive = true;
+            elements.startBtn.disabled = true;
+            elements.pauseBtn.disabled = false;
+            
+            let count = CONFIG.COUNTDOWN_TIME;
+            elements.countdown.textContent = count;
+            elements.countdown.style.display = 'flex';
+            
+            const countdownInterval = setInterval(() => {
+                count--;
+                elements.countdown.textContent = count;
+                playSound('countdown');
+                
+                if (count <= 0) {
+                    clearInterval(countdownInterval);
+                    elements.countdown.style.display = 'none';
+                    gameState.countdownActive = false;
+                    initializeGame();
+                }
+            }, 1000);
+        }
+
+        function initializeGame() {
+            gameState.score = 0;
+            gameState.timeLeft = gameState.gameDuration;
+            gameState.totalClicks = 0;
+            gameState.successfulClicks = 0;
+            gameState.gameActive = true;
+            gameState.gamePaused = false;
+            
+            elements.score.textContent = gameState.score;
+            elements.timer.textContent = gameState.timeLeft;
+            elements.accuracy.textContent = "0%";
+            elements.gameOverMessage.style.display = 'none';
+            
+            elements.startBtn.disabled = true;
+            elements.pauseBtn.disabled = false;
+            
+            gameState.timerInterval = setInterval(updateTimer, 1000);
+            
+            if (gameState.gameMode === 'classic') {
+                createTarget();
+            } else {
+                createNumberTargets();
+            }
+        }
+
+        // ===== FONCTIONS DE CRÉATION DES CIBLES =====
+        function createTarget() {
+            const existingTarget = document.querySelector('.target');
+            if (existingTarget) {
+                existingTarget.remove();
+            }
+            
+            const target = createTargetElement();
+            elements.gameArea.appendChild(target);
+        }
+
+        function createNumberTargets() {
+            document.querySelectorAll('.target').forEach(target => target.remove());
+            
+            const targetCount = Math.floor(Math.random() * 
+                (CONFIG.NUMBER_MODE_MAX_TARGETS - CONFIG.NUMBER_MODE_MIN_TARGETS + 1)) + 
+                CONFIG.NUMBER_MODE_MIN_TARGETS;
+            
+            const availableNumbers = Array.from({length: CONFIG.NUMBER_MODE_MAX_VALUE}, (_, i) => i + 1);
+            const shuffledNumbers = shuffleArray(availableNumbers);
+            const selectedNumbers = shuffledNumbers.slice(0, targetCount);
+            
+            for (let i = 0; i < targetCount; i++) {
+                const target = createTargetElement(true, selectedNumbers[i]);
+                elements.gameArea.appendChild(target);
+            }
+        }
+
+        function shuffleArray(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+
+        function createTargetElement(isNumberMode = false, number = 1) {
+            const target = document.createElement('div');
+            
+            let size;
+            let sizeClass = '';
+            switch(gameState.difficulty) {
+                case 'easy':
+                    size = Math.min(90, elements.gameArea.offsetWidth / 6, elements.gameArea.offsetHeight / 6);
+                    sizeClass = 'large';
+                    break;
+                case 'medium':
+                    size = Math.min(70, elements.gameArea.offsetWidth / 8, elements.gameArea.offsetHeight / 8);
+                    sizeClass = 'medium';
+                    break;
+                case 'hard':
+                    size = Math.min(50, elements.gameArea.offsetWidth / 10, elements.gameArea.offsetHeight / 10);
+                    sizeClass = 'small';
+                    break;
+                default:
+                    size = Math.min(80, elements.gameArea.offsetWidth / 7, elements.gameArea.offsetHeight / 7);
+                    sizeClass = 'medium';
+            }
+            
+            if (window.innerWidth <= 768) {
+                size = Math.max(size, CONFIG.MIN_TARGET_SIZE);
+            }
+            
+            let shapeClass = 'circle';
+            if (gameState.shapesMode === 'mixed') {
+                const shapes = ['circle', 'square', 'triangle', 'diamond'];
+                shapeClass = shapes[Math.floor(Math.random() * shapes.length)];
+            }
+            
+            target.className = `target ${shapeClass} ${sizeClass}`;
+            
+            if (shapeClass !== 'triangle' && shapeClass !== 'diamond') {
+                target.style.width = `${size}px`;
+                target.style.height = `${size}px`;
+            }
+            
+            if (isNumberMode) {
+                target.classList.add('number-mode');
+                target.textContent = number;
+                target.setAttribute('data-value', number);
+            }
+            
+            const margin = CONFIG.MIN_MARGIN;
+            const maxX = elements.gameArea.offsetWidth - size - margin;
+            const maxY = elements.gameArea.offsetHeight - size - margin;
+            
+            let randomX, randomY;
+            let attempts = 0;
+            const maxAttempts = 100;
+            
+            do {
+                randomX = Math.floor(Math.random() * maxX) + margin/2;
+                randomY = Math.floor(Math.random() * maxY) + margin/2;
+                attempts++;
+            } while (attempts < maxAttempts && isOverlapping(randomX, randomY, size));
+            
+            target.style.left = `${randomX}px`;
+            target.style.top = `${randomY}px`;
+            
+            target.addEventListener('click', handleTargetClick);
+            target.addEventListener('touchstart', handleTargetTouch, { passive: false });
+            target.addEventListener('touchend', handleTargetTouchEnd, { passive: false });
+            
+            return target;
+        }
+
+        function isOverlapping(x, y, size) {
+            const existingTargets = document.querySelectorAll('.target');
+            const margin = CONFIG.TARGET_SPACING;
+            
+            for (const existingTarget of existingTargets) {
+                const rect = existingTarget.getBoundingClientRect();
+                const gameAreaRect = elements.gameArea.getBoundingClientRect();
+                
+                const existingX = rect.left - gameAreaRect.left;
+                const existingY = rect.top - gameAreaRect.top;
+                const existingWidth = rect.width;
+                const existingHeight = rect.height;
+                
+                if (x < existingX + existingWidth + margin &&
+                    x + size + margin > existingX &&
+                    y < existingY + existingHeight + margin &&
+                    y + size + margin > existingY) {
+                    return true;
+                }
+            }
+            
+            return false;
+        }
+
+        // ===== GESTION DES INTERACTIONS =====
+        function handleTargetTouch(e) {
+            e.preventDefault();
+            if (!gameState.gameActive || gameState.gamePaused) return;
+            
+            this.style.transform = 'scale(0.8)';
+            this.style.opacity = '0.9';
+            
+            return false;
+        }
+
+        function handleTargetTouchEnd(e) {
+            e.preventDefault();
+            if (!gameState.gameActive || gameState.gamePaused) return;
+            
+            handleTargetClick.call(this, e);
+            
+            return false;
+        }
+
+        function handleTargetClick(e) {
+            if (e.type === 'touchstart' || e.type === 'touchend') {
+                e.preventDefault();
+            }
+            
+            if (!gameState.gameActive || gameState.gamePaused) return;
+            
+            if (gameState.gameMode === 'classic') {
+                gameState.score += 1;
+            } else {
+                const value = parseInt(this.getAttribute('data-value'));
+                gameState.score += value;
+            }
+            
+            gameState.successfulClicks++;
+            gameState.totalClicks++;
+            
+            elements.score.textContent = gameState.score;
+            updateAccuracy();
+            
+            playSound('click');
+            
+            this.style.transform = 'scale(0.8)';
+            
+            setTimeout(() => {
+                if (gameState.gameActive && !gameState.gamePaused) {
+                    if (gameState.gameMode === 'classic') {
+                        createTarget();
+                    } else {
+                        createNumberTargets();
+                    }
+                }
+            }, 100);
+        }
+
+        // ===== FONCTIONS DE JEU =====
+        function updateAccuracy() {
+            const accuracy = gameState.totalClicks > 0 ? 
+                Math.round((gameState.successfulClicks / gameState.totalClicks) * 100) : 0;
+            elements.accuracy.textContent = `${accuracy}%`;
+        }
+
+        function updateTimer() {
+            if (!gameState.gamePaused) {
+                gameState.timeLeft--;
+                elements.timer.textContent = gameState.timeLeft;
+                
+                if (gameState.timeLeft <= 0) {
+                    endGame();
+                }
+            }
+        }
+
+        function endGame() {
+            gameState.gameActive = false;
+            clearInterval(gameState.timerInterval);
+            
+            document.querySelectorAll('.target').forEach(target => target.remove());
+            
+            elements.startBtn.disabled = false;
+            
+            const accuracy = gameState.totalClicks > 0 ? 
+                Math.round((gameState.successfulClicks / gameState.totalClicks) * 100) : 0;
+            
+            addToHistory(gameState.score, accuracy);
+            
+            updateConfigKey();
+            const currentHighScore = persistentData.highScores[currentConfigKey] || 0;
+            if (gameState.score > currentHighScore) {
+                persistentData.highScores[currentConfigKey] = gameState.score;
+                localStorage.setItem('highScores', JSON.stringify(persistentData.highScores));
+                elements.highScore.textContent = gameState.score;
+                playSound('success');
+            } else {
+                playSound('gameOver');
+            }
+            
+            showGameOverMessage(gameState.score, accuracy);
+        }
+
+        function showGameOverMessage(score, accuracy) {
+            const now = new Date();
+            
+            elements.finalScore.textContent = score;
+            elements.finalAccuracy.textContent = `${accuracy}%`;
+            elements.finalDate.textContent = now.toLocaleDateString();
+            elements.finalTime.textContent = now.toLocaleTimeString();
+            elements.finalMode.textContent = gameState.gameMode === 'classic' ? 'Classique' : 'Chiffres';
+            elements.finalDifficulty.textContent = gameState.difficulty.charAt(0).toUpperCase() + gameState.difficulty.slice(1);
+            elements.finalShapes.textContent = gameState.shapesMode === 'circle' ? 'Cercles' : 'Variées';
+            elements.finalDuration.textContent = `${gameState.gameDuration}s`;
+            
+            updateRecentHistory();
+            elements.gameOverMessage.style.display = 'block';
+        }
+
+        // ===== GESTION DE L'HISTORIQUE AMÉLIORÉE =====
+        function addToHistory(score, accuracy) {
+            const now = new Date();
+            const gameRecord = {
+                date: now.toLocaleDateString(),
+                time: now.toLocaleTimeString(),
+                mode: gameState.gameMode,
+                score: score,
+                accuracy: accuracy,
+                duration: gameState.gameDuration,
+                difficulty: gameState.difficulty,
+                shapes: gameState.shapesMode,
+                timestamp: now.getTime()
+            };
+            
+            persistentData.gameHistory.unshift(gameRecord);
+            
+            if (persistentData.gameHistory.length > CONFIG.MAX_HISTORY_ITEMS) {
+                persistentData.gameHistory = persistentData.gameHistory.slice(0, CONFIG.MAX_HISTORY_ITEMS);
+            }
+            
+            updateBestScores(gameRecord);
+            
+            localStorage.setItem('gameHistory', JSON.stringify(persistentData.gameHistory));
+            localStorage.setItem('bestScores', JSON.stringify(persistentData.bestScores));
+            updateHistoryTables();
+        }
+
+        function updateBestScores(gameRecord) {
+            const configKey = `${gameRecord.mode}_${gameRecord.duration}_${gameRecord.shapes}_${gameRecord.difficulty}`;
+            
+            let existingBest = persistentData.bestScores.find(score => 
+                score.configKey === configKey
+            );
+            
+            if (!existingBest || gameRecord.score > existingBest.score) {
+                if (existingBest) {
+                    persistentData.bestScores = persistentData.bestScores.filter(score => 
+                        score.configKey !== configKey
+                    );
+                }
+                
+                persistentData.bestScores.push({
+                    configKey: configKey,
+                    mode: gameRecord.mode,
+                    score: gameRecord.score,
+                    accuracy: gameRecord.accuracy,
+                    duration: gameRecord.duration,
+                    shapes: gameRecord.shapes,
+                    difficulty: gameRecord.difficulty,
+                    date: gameRecord.date,
+                    timestamp: gameRecord.timestamp
+                });
+            }
+            
+            persistentData.bestScores.sort((a, b) => b.score - a.score);
+        }
+
+        function updateHistoryTables() {
+            updateRecentHistoryTable();
+            updateClassicHistoryTable();
+            updateNumbersHistoryTable();
+            updateAllTimeTable();
+        }
+
+        function updateRecentHistoryTable() {
+            elements.historyTableBody.innerHTML = '';
+            
+            if (persistentData.gameHistory.length === 0) {
+                elements.historyTableBody.innerHTML = '<tr><td colspan="7" class="no-data">Aucune partie enregistrée</td></tr>';
+                return;
+            }
+            
+            persistentData.gameHistory.forEach(record => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${record.date}<br>${record.time}</td>
+                    <td>${record.mode === 'classic' ? 'Classique' : 'Chiffres'}</td>
+                    <td>${record.score}</td>
+                    <td>${record.accuracy}%</td>
+                    <td>${record.duration}s</td>
+                    <td>${record.shapes === 'circle' ? 'Cercles' : 'Variées'}</td>
+                    <td>${record.difficulty}</td>
+                `;
+                elements.historyTableBody.appendChild(row);
+            });
+        }
+
+        function updateClassicHistoryTable() {
+            elements.classicTableBody.innerHTML = '';
+            
+            const classicScores = persistentData.bestScores
+                .filter(score => score.mode === 'classic')
+                .sort((a, b) => b.score - a.score);
+            
+            if (classicScores.length === 0) {
+                elements.classicTableBody.innerHTML = '<tr><td colspan="7" class="no-data">Aucun record en mode Classique</td></tr>';
+                return;
+            }
+            
+            classicScores.forEach((record, index) => {
+                const row = document.createElement('tr');
+                let medal = '';
+                if (index === 0) medal = '<span class="medal medal-gold">🥇</span>';
+                else if (index === 1) medal = '<span class="medal medal-silver">🥈</span>';
+                else if (index === 2) medal = '<span class="medal medal-bronze">🥉</span>';
+                
+                row.innerHTML = `
+                    <td>${medal} ${index + 1}</td>
+                    <td><strong>${record.score}</strong></td>
+                    <td>${record.accuracy}%</td>
+                    <td>${record.duration}s</td>
+                    <td>${record.shapes === 'circle' ? 'Cercles' : 'Variées'}</td>
+                    <td>${record.difficulty}</td>
+                    <td>${record.date}</td>
+                `;
+                elements.classicTableBody.appendChild(row);
+            });
+        }
+
+        function updateNumbersHistoryTable() {
+            elements.numbersTableBody.innerHTML = '';
+            
+            const numbersScores = persistentData.bestScores
+                .filter(score => score.mode === 'numbers')
+                .sort((a, b) => b.score - a.score);
+            
+            if (numbersScores.length === 0) {
+                elements.numbersTableBody.innerHTML = '<tr><td colspan="7" class="no-data">Aucun record en mode Chiffres</td></tr>';
+                return;
+            }
+            
+            numbersScores.forEach((record, index) => {
+                const row = document.createElement('tr');
+                let medal = '';
+                if (index === 0) medal = '<span class="medal medal-gold">🥇</span>';
+                else if (index === 1) medal = '<span class="medal medal-silver">🥈</span>';
+                else if (index === 2) medal = '<span class="medal medal-bronze">🥉</span>';
+                
+                row.innerHTML = `
+                    <td>${medal} ${index + 1}</td>
+                    <td><strong>${record.score}</strong></td>
+                    <td>${record.accuracy}%</td>
+                    <td>${record.duration}s</td>
+                    <td>${record.shapes === 'circle' ? 'Cercles' : 'Variées'}</td>
+                    <td>${record.difficulty}</td>
+                    <td>${record.date}</td>
+                `;
+                elements.numbersTableBody.appendChild(row);
+            });
+        }
+
+        function updateAllTimeTable() {
+            elements.allTimeTableBody.innerHTML = '';
+            
+            const allScores = [...persistentData.bestScores]
+                .sort((a, b) => b.score - a.score)
+                .slice(0, 10);
+            
+            if (allScores.length === 0) {
+                elements.allTimeTableBody.innerHTML = '<tr><td colspan="8" class="no-data">Aucun record enregistré</td></tr>';
+                return;
+            }
+            
+            allScores.forEach((record, index) => {
+                const row = document.createElement('tr');
+                let medal = '';
+                if (index === 0) medal = '<span class="medal medal-gold">🥇</span>';
+                else if (index === 1) medal = '<span class="medal medal-silver">🥈</span>';
+                else if (index === 2) medal = '<span class="medal medal-bronze">🥉</span>';
+                
+                row.innerHTML = `
+                    <td>${medal} ${index + 1}</td>
+                    <td><strong>${record.score}</strong></td>
+                    <td>${record.mode === 'classic' ? 'Classique' : 'Chiffres'}</td>
+                    <td>${record.accuracy}%</td>
+                    <td>${record.duration}s</td>
+                    <td>${record.shapes === 'circle' ? 'Cercles' : 'Variées'}</td>
+                    <td>${record.difficulty}</td>
+                    <td>${record.date}</td>
+                `;
+                elements.allTimeTableBody.appendChild(row);
+            });
+        }
+
+        function updateRecentHistory() {
+            elements.recentHistoryList.innerHTML = '';
+            
+            const recentGames = persistentData.gameHistory.slice(0, 3);
+            
+            if (recentGames.length === 0) {
+                elements.recentHistoryList.innerHTML = '<div class="history-item">Aucune partie enregistrée</div>';
+                return;
+            }
+            
+            recentGames.forEach(game => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+                historyItem.innerHTML = `
+                    <span>${game.date} ${game.time}</span>
+                    <span>${game.mode === 'classic' ? 'Classique' : 'Chiffres'}</span>
+                    <span class="history-score">${game.score} pts</span>
+                    <span>${game.accuracy}%</span>
+                `;
+                elements.recentHistoryList.appendChild(historyItem);
+            });
+        }
+
+        function clearHistory() {
+            persistentData.gameHistory = [];
+            persistentData.bestScores = [];
+            persistentData.highScores = {};
+            localStorage.setItem('gameHistory', JSON.stringify(persistentData.gameHistory));
+            localStorage.setItem('bestScores', JSON.stringify(persistentData.bestScores));
+            localStorage.setItem('highScores', JSON.stringify(persistentData.highScores));
+            updateHistoryTables();
+            updateRecentHistory();
+            
+            elements.highScore.textContent = '0';
+        }
+
+        // ===== GESTION DE LA PAUSE =====
+        function pauseGame() {
+            if (!gameState.gameActive || gameState.countdownActive) return;
+            
+            gameState.gamePaused = true;
+            document.getElementById('pauseModal').style.display = 'flex';
+        }
+
+        function resumeGame() {
+            gameState.gamePaused = false;
+            document.getElementById('pauseModal').style.display = 'none';
+        }
+
+        function newGame() {
+            document.getElementById('pauseModal').style.display = 'none';
+            resetGame();
+            startGame();
+        }
+
+        function quitGame() {
+            document.getElementById('pauseModal').style.display = 'none';
+            resetGame();
+        }
+
+        // ===== RÉINITIALISATION =====
+        function resetGame() {
+            clearInterval(gameState.timerInterval);
+            gameState.gameActive = false;
+            gameState.gamePaused = false;
+            gameState.countdownActive = false;
+            
+            document.querySelectorAll('.target').forEach(target => target.remove());
+            
+            elements.countdown.style.display = 'none';
+            
+            gameState.score = 0;
+            gameState.timeLeft = gameState.gameDuration;
+            gameState.totalClicks = 0;
+            gameState.successfulClicks = 0;
+            elements.score.textContent = gameState.score;
+            elements.timer.textContent = gameState.timeLeft;
+            elements.accuracy.textContent = "0%";
+            elements.gameOverMessage.style.display = 'none';
+            
+            elements.startBtn.disabled = false;
+            elements.pauseBtn.disabled = true;
+        }
+
+        // ===== GESTION DES MODALS =====
+        function showHistory() {
+            document.getElementById('historyModal').style.display = 'flex';
+            updateHistoryTables();
+        }
+
+        function showRules() {
+            document.getElementById('rulesModal').style.display = 'flex';
+        }
+
+        function closeModals() {
+            document.getElementById('pauseModal').style.display = 'none';
+            document.getElementById('historyModal').style.display = 'none';
+            document.getElementById('rulesModal').style.display = 'none';
+        }
+
+        // ===== GESTION DES ÉVÉNEMENTS =====
+        function setupEventListeners() {
+            // Boutons principaux
+            elements.startBtn.addEventListener('click', startGame);
+            elements.pauseBtn.addEventListener('click', pauseGame);
+            elements.soundBtn.addEventListener('click', toggleSound);
+            elements.historyBtn.addEventListener('click', showHistory);
+            elements.rulesBtn.addEventListener('click', showRules);
+            elements.playAgainBtn.addEventListener('click', startGame);
+            elements.closeMessageBtn.addEventListener('click', resetGame);
+            elements.themeToggle.addEventListener('change', toggleTheme);
+            
+            // Boutons des modals
+            document.getElementById('closePauseModal').addEventListener('click', closeModals);
+            document.getElementById('closeHistoryModal').addEventListener('click', closeModals);
+            document.getElementById('closeRulesModal').addEventListener('click', closeModals);
+            document.getElementById('resumeBtn').addEventListener('click', resumeGame);
+            document.getElementById('newGameBtn').addEventListener('click', newGame);
+            document.getElementById('quitBtn').addEventListener('click', quitGame);
+            document.getElementById('clearHistoryBtn').addEventListener('click', clearHistory);
+            document.getElementById('closeRulesBtn').addEventListener('click', closeModals);
+            
+            // Clics en dehors des cibles
+            elements.gameArea.addEventListener('click', function(e) {
+                if (!gameState.gameActive || gameState.gamePaused) return;
+                
+                if (!e.target.classList.contains('target')) {
+                    gameState.totalClicks++;
+                    updateAccuracy();
+                    
+                    if (gameState.gameMode === 'classic') {
+                        const target = document.querySelector('.target');
+                        if (target) {
+                            target.remove();
+                            createTarget();
+                        }
+                    } else {
+                        createNumberTargets();
+                    }
+                }
+            });
+
+            elements.gameArea.addEventListener('touchstart', function(e) {
+                if (!gameState.gameActive || gameState.gamePaused) return;
+                
+                if (!e.target.classList.contains('target')) {
+                    gameState.totalClicks++;
+                    updateAccuracy();
+                    
+                    if (gameState.gameMode === 'classic') {
+                        const target = document.querySelector('.target');
+                        if (target) {
+                            target.remove();
+                            createTarget();
+                        }
+                    } else {
+                        createNumberTargets();
+                    }
+                }
+            }, { passive: false });
+
+            // Fermer les modals en cliquant à l'extérieur
+            window.addEventListener('click', function(e) {
+                if (e.target.classList.contains('modal')) {
+                    closeModals();
+                }
+            });
+
+            // Redimensionnement
+            window.addEventListener('resize', function() {
+                if (gameState.gameActive) {
+                    setTimeout(() => {
+                        if (gameState.gameMode === 'classic') {
+                            createTarget();
+                        } else {
+                            createNumberTargets();
+                        }
+                    }, 100);
+                }
+            });
+
+            // Orientation
+            window.addEventListener('orientationchange', function() {
+                setTimeout(function() {
+                    if (gameState.gameActive) {
+                        if (gameState.gameMode === 'classic') {
+                            createTarget();
+                        } else {
+                            createNumberTargets();
+                        }
+                    }
+                    window.dispatchEvent(new Event('resize'));
+                }, 500);
+            });
+        }
+
+        // ===== DÉMARRAGE =====
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
